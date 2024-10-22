@@ -1,107 +1,127 @@
-#pip install -U aeon
-#pip install --upgrade pandas dask
-#export CUBLAS_WORKSPACE_CONFIG=:4096:8
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from torch.utils.data import DataLoader, Dataset
-from tqdm import tqdm
 import pickle
-from sklearn.model_selection import train_test_split
-import numpy as np
-import tensorflow as tf
-import tensorflow.keras as keras
-from tensorflow.keras.callbacks import ReduceLROnPlateau
 from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
-from sklearn.utils.class_weight import compute_class_weight
-from keras.utils import to_categorical
-from keras.metrics import Precision, Recall
 from sklearn.preprocessing import StandardScaler
-import os
-import torch.nn.functional as F
 import pandas as pd
 import time
-from sklearn.preprocessing import OneHotEncoder
-from tensorflow.keras import backend as K
-from sklearn.neural_network import MLPClassifier
 import gc
 from aeon.classification.hybrid import HIVECOTEV2
-from aeon.datasets import load_from_tsfile_to_dataframe as load_ts
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(device)
+def preprocess(df_train, df_test):
+    '''
+    Arguments:
+    ----------
+    df_train : pandas.DataFrame
+        The training dataset, where the first column contains the labels, and the remaining columns are features.
+    df_test : pandas.DataFrame
+        The test dataset, where the first column contains the labels, and the remaining columns are features.
 
-def process_labels(y_train, y_test):
-    # Preprocess labels
+    Returns:
+    --------
+    tuple or None
+        - If successful, returns a tuple with:
+            1. X_train : numpy.ndarray
+                The normalized feature values from the training dataset.
+            2. X_test : numpy.ndarray
+                The normalized feature values from the test dataset.
+            3. y_train : pandas.Series
+                The processed labels from the training dataset.
+            4. y_test : pandas.Series
+                The processed labels from the test dataset.
+        - Returns `None` if the input data is invalid or empty (after cleaning or transformation).
+    '''
+    df_train=df_train.dropna()
+    df_test=df_test.dropna()
+    
+    if df_train.empty or df_test.empty:
+        return None
+    
+    y_train = df_train.iloc[:, 0]
+    y_test = df_test.iloc[:, 0]
     unique=y_test.unique()
-        
-    # there are [-1,1] classes
+
+    if y_test.empty or y_train.empty:
+        return None
+
+    # Possible classes are -1 and 1
     if -1 in unique:
         y_train = y_train.replace({-1: 0})
         y_test = y_test.replace({-1: 0})
-   
-    # for labels starting from 1
-    elif 0 not in unique:
-        #class labels are starting from 1
-        if 1 in unique:
-            y_train=y_train-1
-            y_test=y_test-1
-        
-        #class labels are starting from some other number
-        else:
-            min_label=min(unique)
-            y_train=y_train-min_label
-            y_test=y_test-min_label
-            
-    return y_train, y_test
 
-def main():
-    df_meta=pd.read_csv("shared/Irina_KAN/DataSummary.csv")
+    # Class labels dont't start from 0
+    elif 0 not in unique:
+        min_label=min(unique)
+        y_train=y_train-min_label
+        y_test=y_test-min_label
     
-    with open('shared/Irina_KAN/results/hive_cote2/results_hc2.pkl', 'rb') as f:
-        results_hc2 = pickle.load(f)
+    y_train = y_train.astype('long') 
+    y_test = y_test.astype('long')  
+
+    X_train = df_train.iloc[:, 1:].astype('float32')  
+    X_test = df_test.iloc[:, 1:].astype('float32')  
+
+    # Normalize input values
+    scaler = StandardScaler()
+    X_train = scaler.fit_transform(X_train)
+    X_test = scaler.fit_transform(X_test)
+    
+    if y_test.empty or y_train.empty:
+        return None
+
+    return X_train, X_test, y_train, y_test
+
+
+def run_hc2(file_path):
+    '''
+    Arguments:
+    ----------
+    file_path : str
+        Path to the file with precomputed results.
+    '''
+    # Path to file with UCR Metadata
+    df_meta=pd.read_csv('/DataSummary.csv')
+    
+    # Open dictionary with already computed results
+    try:
+        with open(file_path, 'rb') as f:
+            results_hc2 = pickle.load(f)
+    except FileNotFoundError:
+        # If the file doesn't exist, initialize an empty dictionary
+        results_hc2 = {}   
         
     keys_to_remove = results_hc2.keys()
 
-    # Remove rows where 'Name' is in keys_to_remove
+    # Skip datasets with existing results
     df_meta = df_meta[~df_meta['Name'].isin(keys_to_remove)]
-    df_meta = df_meta[~df_meta['Name'].isin(['ElectricDevices', 'FordA','FordB', 'HandOutlines', 'NonInvasiveFetalECGThorax1', 'NonInvasiveFetalECGThorax2'])]
     
     for index, dataset in df_meta.iterrows():
         
         name=dataset['Name']
-        print(f'Processing {name}...')
         file_train = f'{name}/{name}_TRAIN.tsv'
         file_test = f'{name}/{name}_TEST.tsv'
 
-        input_layer=dataset['Length']
-        output_layer=dataset['Class']
+        df_train = pd.read_csv('/UCRArchive_2018/'+file_train, sep='\t')
+        df_test = pd.read_csv('/UCRArchive_2018/'+file_test, sep='\t')
+        
+        data= preprocess(df_train, df_test)
 
-        df_train = pd.read_csv('shared/Irina_KAN/UCRArchive_2018/'+file_train, sep='\t')
-        df_test = pd.read_csv('shared/Irina_KAN/UCRArchive_2018/'+file_test, sep='\t')
-
-        y_train = df_train.iloc[:, 0]  # First column for class labels
-        X_train = df_train.iloc[:, 1:]  # All other columns for features
-        y_test = df_test.iloc[:, 0]  # First column for class labels
-        X_test = df_test.iloc[:, 1:]  # All other columns for features
-
-        if y_test.empty:
+        if data is None:
             continue
 
-        y_train, y_test=process_labels(y_train, y_test)
+        X_train, X_test, y_train, y_test = data
 
         # Fit HC2
         hc2 = HIVECOTEV2(random_state=42, n_jobs=-1)
-        start_time_hc2=time.time()
+
+        start_time_hc2=time.time() 
         hc2.fit(X_train, y_train)
         end_time_hc2=time.time()
 
         execution_time = end_time_hc2 - start_time_hc2
 
-
-        # Predict and print accuracy
+        # Predict
         predictions = hc2.predict(X_test)
 
+        # Calculate performance metrics
         accuracy = accuracy_score(y_test, predictions)
         precision = precision_score(y_test, predictions, average='macro',zero_division=1)
         recall = recall_score(y_test, predictions, average='macro')
@@ -109,15 +129,18 @@ def main():
 
         results_hc2[name]=[execution_time, accuracy, f1, precision, recall]
 
-
-        with open('shared/Irina_KAN/results/hive_cote2/results_hc2.pkl', 'wb') as f:
+        with open(file_path, 'wb') as f:
             pickle.dump(results_hc2, f,protocol=pickle.HIGHEST_PROTOCOL)
 
-        print(index, name)
         del hc2
-
         gc.collect()
+            
+def main():
+    # Define path to file to save results to
+    file_path='/results/HiveCote2/results_hc2.pkl'
+
+    run_hc2(file_path)
     
-    
+
 if __name__ == "__main__":
     main()
