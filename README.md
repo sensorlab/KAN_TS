@@ -97,7 +97,6 @@ If five seeds are used, the value will be a list containing five lists, with eac
 5. **Recall**
 
 ## Citation
-
 ```
 @misc{barasin2024exploringkan,
       title={Exploring Kolmogorov-Arnold Networks for Interpretable Classification}, 
@@ -105,6 +104,6 @@ If five seeds are used, the value will be a list containing five lists, with eac
       year={2024},
       eprint={2411.14904},
       archivePrefix={arXiv},
-      primaryClass={cs.LG}
+      primaryClass={cs.LG} 
 }
 ```
