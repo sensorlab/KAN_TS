@@ -9,7 +9,7 @@ Our research investigates the transferability of KANs from regression tasks to t
 
 Results indicate that Efficient KAN performs competitively against MLPs, while also providing faster training times and maintaining a smaller architecture compared to state-of-the-art models like HIVE-COTE2. Additionally, our analysis highlights the sensitivity of KANs to variations in architectural configurations, offering insights into how these factors influence model performance.
 
-For more detailed findings, please refer to our [research paper](link_to_paper).
+For more detailed findings, please refer to our [research paper](https://arxiv.org/abs/2411.14904).
 
 ## Installation
 
@@ -99,5 +99,12 @@ If five seeds are used, the value will be a list containing five lists, with eac
 ## Citation
 
 ```
-
+@misc{barasin2024exploringkan,
+      title={Exploring Kolmogorov-Arnold Networks for Interpretable Classification}, 
+      author={Irina Barašin and Blaž Bertalanič and Miha Mohorčič and Carolina Fortuna},
+      year={2024},
+      eprint={2411.14904},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
 ```
