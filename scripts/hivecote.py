@@ -78,7 +78,7 @@ def run_hc2(file_path):
         Path to the file with precomputed results.
     '''
     # Path to file with UCR Metadata
-    df_meta=pd.read_csv('/DataSummary.csv')
+    df_meta=pd.read_csv('../DataSummary.csv')
     
     # Open dictionary with already computed results
     try:
@@ -99,8 +99,8 @@ def run_hc2(file_path):
         file_train = f'{name}/{name}_TRAIN.tsv'
         file_test = f'{name}/{name}_TEST.tsv'
 
-        df_train = pd.read_csv('/UCRArchive_2018/'+file_train, sep='\t')
-        df_test = pd.read_csv('/UCRArchive_2018/'+file_test, sep='\t')
+        df_train = pd.read_csv('../UCRArchive_2018/'+file_train, sep='\t')
+        df_test = pd.read_csv('../UCRArchive_2018/'+file_test, sep='\t')
         
         data= preprocess(df_train, df_test)
 
@@ -137,7 +137,7 @@ def run_hc2(file_path):
             
 def main():
     # Define path to file to save results to
-    file_path='/results/HiveCote2/results_hc2.pkl'
+    file_path='../results/HiveCote2/results_hc2.pkl'
 
     run_hc2(file_path)
     

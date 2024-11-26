@@ -246,7 +246,7 @@ def multirun(params, lr, epochs, batch_size, seeds):
         Results are saved in a pickle file after each dataset run.
     '''
     # File with UCR Metadata
-    df_meta = pd.read_csv("DataSummary.csv")
+    df_meta = pd.read_csv("../DataSummary.csv")
 
     # Run each architecture configuration
     for i, instance in enumerate(params):
@@ -255,7 +255,7 @@ def multirun(params, lr, epochs, batch_size, seeds):
 
         grid = instance.grid
 
-        file_path = f'results/effkan/LearningRate{str(lr).replace(".", ",")}/results_{architecture_str}_{grid}.pkl'
+        file_path = f'../results/effkan/LearningRate{str(lr).replace(".", ",")}/results_{architecture_str}_{grid}.pkl'
         
         # Load already computed results if they exist
         if os.path.exists(file_path):
@@ -285,8 +285,8 @@ def multirun(params, lr, epochs, batch_size, seeds):
             file_train = f'{name}/{name}_TRAIN.tsv'
             file_test = f'{name}/{name}_TEST.tsv'
             
-            df_train = pd.read_csv('UCRArchive_2018/' + file_train, sep='\t')
-            df_test = pd.read_csv('UCRArchive_2018/' + file_test, sep='\t')
+            df_train = pd.read_csv('../UCRArchive_2018/' + file_train, sep='\t')
+            df_test = pd.read_csv('../UCRArchive_2018/' + file_test, sep='\t')
 
             data = preprocess(df_train, df_test, batch_size)
             if data is None:

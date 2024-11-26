@@ -137,10 +137,10 @@ def multirun(layers, lr, epochs, batch, seeds):
         Results are saved to pickle files after each dataset run.
     '''
     # Load UCR Metadata
-    df_meta = pd.read_csv("/DataSummary.csv")
+    df_meta = pd.read_csv("../DataSummary.csv")
 
     for configuration in layers:
-        file_path = f'/results/mlp/LearningRate{str(lr).replace(".", ",")}/results_{configuration}.pkl'
+        file_path = f'../results/mlp/LearningRate{str(lr).replace(".", ",")}/results_{configuration}.pkl'
 
         if os.path.exists(file_path):
             # Load previously computed results
@@ -165,8 +165,8 @@ def multirun(layers, lr, epochs, batch, seeds):
             file_train = f'{name}/{name}_TRAIN.tsv'
             file_test = f'{name}/{name}_TEST.tsv'
             
-            df_train = pd.read_csv('/UCRArchive_2018/'+file_train, sep='\t')
-            df_test = pd.read_csv('/UCRArchive_2018/'+file_test, sep='\t')
+            df_train = pd.read_csv('../UCRArchive_2018/'+file_train, sep='\t')
+            df_test = pd.read_csv('../UCRArchive_2018/'+file_test, sep='\t')
 
             data = preprocess(df_train, df_test)
             if data is None:
@@ -187,7 +187,8 @@ def multirun(layers, lr, epochs, batch, seeds):
 
 def main():
     layers = [
-        (300, 300,),
+        (300, 300, 300, ),
+        (300, 300, 300, 300, ),
     ]
 
     # Define parameters

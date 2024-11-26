@@ -5,7 +5,9 @@ import time
 import gc
 import numpy as np
 import pandas as pd
+import sys
 
+sys.path.insert(0, '../pykan/')
 from kan import *
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
@@ -206,7 +208,7 @@ def multirun(params, lr, epochs, batch, seeds):
         Saves results after each run to a pickle file at the specified path.
     '''
     # File with UCR Metadata
-    df_meta = pd.read_csv("/DataSummary.csv")
+    df_meta = pd.read_csv("../DataSummary.csv")
 
     # Run each architecture configuration
     for i, instance in enumerate(params):
@@ -215,7 +217,7 @@ def multirun(params, lr, epochs, batch, seeds):
 
         grid = instance.grid
 
-        file_path = f'/results/kan/LearningRate{str(lr).replace(".", ",")}/results_{architecture_str}_{grid}.pkl'
+        file_path = f'../results/kan/LearningRate{str(lr).replace(".", ",")}/results_{architecture_str}_{grid}.pkl'
         
         # Load already computed results if they exist
         if os.path.exists(file_path):
@@ -245,8 +247,8 @@ def multirun(params, lr, epochs, batch, seeds):
             file_train = f'{name}/{name}_TRAIN.tsv'
             file_test = f'{name}/{name}_TEST.tsv'
             
-            df_train = pd.read_csv('/UCRArchive_2018/' + file_train, sep='\t')
-            df_test = pd.read_csv('/UCRArchive_2018/' + file_test, sep='\t')
+            df_train = pd.read_csv('../UCRArchive_2018/' + file_train, sep='\t')
+            df_test = pd.read_csv('../UCRArchive_2018/' + file_test, sep='\t')
 
             # Preprocess dataframes inputs and labels
             data = preprocess(df_train, df_test)
