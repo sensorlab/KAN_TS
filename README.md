@@ -34,7 +34,7 @@ pip install -r requirements.txt
 
 Unzip file pykan.tar.gz into the root directory of the repository. This is modified version of the pykan library, for running on GPU, used in all of the KAN experiments. 
 
-For Efficient KAN experiments, make sure to clone [efficient kan library] (https://github.com/Blealtan/efficient-kan) into repository:
+For Efficient KAN experiments, make sure to clone [efficient kan library](https://github.com/Blealtan/efficient-kan) into repository:
 
 ```
 git clone https://github.com/Blealtan/efficient-kan.git
