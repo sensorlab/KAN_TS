@@ -106,12 +106,17 @@ If five seeds are used, the value will be a list containing five lists, with eac
 
 ## Citation
 ```
-@misc{barasin2024exploringkan,
-      title={Exploring Kolmogorov-Arnold Networks for Interpretable Classification}, 
-      author={Irina Barašin and Blaž Bertalanič and Miha Mohorčič and Carolina Fortuna},
-      year={2024},
-      eprint={2411.14904},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG} 
+@article{https://doi.org/10.1155/int/9553189,
+author = {Barašin, Irina and Bertalanič, Blaž and Mohorčič, Mihael and Fortuna, Carolina},
+title = {Exploring Kolmogorov–Arnold Networks for Interpretable Time Series Classification},
+journal = {International Journal of Intelligent Systems},
+volume = {2025},
+number = {1},
+pages = {9553189},
+keywords = {classification, Kolmogorov–Arnold networks, multilayer perceptrons, time series},
+doi = {https://doi.org/10.1155/int/9553189},
+url = {https://onlinelibrary.wiley.com/doi/abs/10.1155/int/9553189},
+eprint = {https://onlinelibrary.wiley.com/doi/pdf/10.1155/int/9553189},
+year = {2025},
 }
 ```
